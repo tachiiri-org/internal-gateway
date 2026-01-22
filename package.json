@@ -12,11 +12,17 @@
     "dev": "wrangler dev",
     "build": "tsc",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --max-warnings 0 --fix",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20251219.0",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
     "typescript": "5.9.3",
+    "typescript-eslint": "8.50.1",
     "wrangler": "4.54.0"
   }
 }
