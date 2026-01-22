@@ -12,8 +12,8 @@ export default {
       return new Response("Not Found", { status: 404 });
     }
 
-    // /api/foo -> /rpc/foo にリライト
-    const rewrittenPath = url.pathname.replace(/^\/api\//, "/rpc/");
+    // /api/foo -> /foo にリライト（先頭の /api を削除）
+    const rewrittenPath = url.pathname.replace(/^\/api/, "");
     const backendUrl = new URL(rewrittenPath + url.search, "https://backend.internal");
 
     const forwarded = new Request(backendUrl.toString(), request);
