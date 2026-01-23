@@ -26,7 +26,7 @@ export async function verifyJwt(token: string, env: Env): Promise<JwtPayload> {
       audience,
     });
     return payload;
-  } catch (error) {
+  } catch {
     throw new GatewayError(401, "unauthorized", "Invalid token");
   }
 }
