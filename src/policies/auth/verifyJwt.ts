@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
-import type { Env, JwtPayload } from "../../types";
+import type { Env, JwtClaims } from "../../types";
 import { GatewayError } from "../../errors/gatewayError";
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
@@ -12,11 +12,15 @@ function getJwks(url: string) {
   return jwks;
 }
 
-export async function verifyJwt(token: string, env: Env): Promise<JwtPayload> {
+export async function verifyJwt(token: string, env: Env): Promise<JwtClaims> {
   const issuer = env.AUTH0_ISSUER;
   const audience = env.AUTH0_AUDIENCE;
   if (!issuer || !audience) {
-    throw new GatewayError(500, "misconfigured", "Auth configuration missing");
+    throw new GatewayError({
+      status: 500,
+      code: "misconfigured",
+      message: "Auth configuration missing",
+    });
   }
 
   const jwksUrl = env.AUTH0_JWKS_URL ?? new URL("/.well-known/jwks.json", issuer).toString();
@@ -27,6 +31,10 @@ export async function verifyJwt(token: string, env: Env): Promise<JwtPayload> {
     });
     return payload;
   } catch {
-    throw new GatewayError(401, "unauthorized", "Invalid token");
+    throw new GatewayError({
+      status: 401,
+      code: "unauthorized",
+      message: "Invalid token",
+    });
   }
 }
