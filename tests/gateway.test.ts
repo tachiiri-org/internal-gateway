@@ -92,12 +92,13 @@ test("actor headers are overwritten and gateway token is added", async () => {
   const response = await gateway.fetch(request, env);
   assert.equal(response.status, 200);
   assert.ok(backendRequest, "expected backend request");
-  assert.equal(backendRequest?.url, "https://backend.example/rpc/echo?x=1");
-  assert.equal(backendRequest?.headers.get("x-actor-sub"), "user-123");
+  const ensuredRequest = backendRequest as Request;
+  assert.equal(ensuredRequest.url, "https://backend.example/rpc/echo?x=1");
+  assert.equal(ensuredRequest.headers.get("x-actor-sub"), "user-123");
   assert.equal(
-    backendRequest?.headers.get("x-actor-scopes"),
+    ensuredRequest.headers.get("x-actor-scopes"),
     "read:items write:items",
   );
-  assert.equal(backendRequest?.headers.get("x-actor-tenant"), "acme");
-  assert.equal(backendRequest?.headers.get("x-gateway-token"), env.GATEWAY_TO_BACKEND_TOKEN);
+  assert.equal(ensuredRequest.headers.get("x-actor-tenant"), "acme");
+  assert.equal(ensuredRequest.headers.get("x-gateway-token"), env.GATEWAY_TO_BACKEND_TOKEN);
 });
