@@ -1,11 +1,26 @@
+export interface GatewayErrorOptions {
+  status: number;
+  code: string;
+  message: string;
+  requestId?: string;
+  details?: unknown;
+  cause?: unknown;
+}
+
 export class GatewayError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly requestId?: string;
+  readonly details?: unknown;
+  readonly cause?: unknown;
 
-  constructor(status: number, code: string, message: string) {
-    super(message);
-    this.status = status;
-    this.code = code;
+  constructor(options: GatewayErrorOptions) {
+    super(options.message);
+    this.status = options.status;
+    this.code = options.code;
+    this.requestId = options.requestId;
+    this.details = options.details;
+    this.cause = options.cause;
   }
 }
 
@@ -17,26 +32,44 @@ interface ErrorBody {
   };
 }
 
-export function errorResponse(error: unknown, requestId: string): Response {
-  if (error instanceof GatewayError) {
-    const body: ErrorBody = {
-      error: {
-        code: error.code,
-        message: error.message,
-        requestId,
-      },
-    };
-    return jsonResponse(body, error.status, requestId);
+export function isGatewayError(error: unknown): error is GatewayError {
+  return error instanceof GatewayError;
+}
+
+export function toGatewayError(error: unknown, requestId: string): GatewayError {
+  if (isGatewayError(error)) {
+    if (error.requestId) {
+      return error;
+    }
+    return new GatewayError({
+      status: error.status,
+      code: error.code,
+      message: error.message,
+      requestId,
+      details: error.details,
+      cause: error.cause,
+    });
   }
 
+  return new GatewayError({
+    status: 500,
+    code: "internal_error",
+    message: "Internal Server Error",
+    requestId,
+    cause: error,
+  });
+}
+
+export function errorResponse(error: unknown, requestId: string): Response {
+  const gatewayError = toGatewayError(error, requestId);
   const body: ErrorBody = {
     error: {
-      code: "internal_error",
-      message: "Internal Server Error",
-      requestId,
+      code: gatewayError.code,
+      message: gatewayError.message,
+      requestId: gatewayError.requestId ?? requestId,
     },
   };
-  return jsonResponse(body, 500, requestId);
+  return jsonResponse(body, gatewayError.status, gatewayError.requestId ?? requestId);
 }
 
 export function jsonResponse(

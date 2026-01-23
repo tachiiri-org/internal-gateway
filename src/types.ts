@@ -1,12 +1,27 @@
 import type { JWTPayload } from "jose";
 
-export type RateLimitClass = "read" | "write" | "heavy";
+export type RouteClass = "read" | "write" | "heavy";
+
+export type AuthPolicy = "none" | "required";
+
+export interface RouteDef {
+  id: string;
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS" | "ALL";
+  path: string;
+  upstreamPath: string;
+  auth: AuthPolicy;
+  class: RouteClass;
+}
 
 export interface Actor {
-  kind: "user";
+  kind: "user" | "service";
   sub: string;
   scopes: string[];
   tenant?: string;
+  raw?: {
+    iss: string;
+    aud?: string | string[];
+  };
 }
 
 export interface Env {
@@ -18,4 +33,4 @@ export interface Env {
   AUTH0_JWKS_URL?: string;
 }
 
-export type JwtPayload = JWTPayload;
+export type JwtClaims = JWTPayload;
