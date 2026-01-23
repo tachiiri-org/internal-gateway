@@ -10,7 +10,7 @@ export interface Actor {
 }
 
 export interface Env {
-  BACKEND_URL: string;
+  BACKEND: Fetcher;
   PAGES_TO_GATEWAY_TOKEN: string;
   GATEWAY_TO_BACKEND_TOKEN: string;
   AUTH0_ISSUER: string;

@@ -24,9 +24,22 @@ async function createJwt(env: Env) {
   return { token, jwk };
 }
 
-function baseEnv(): Env {
+function createMockBackend(onRequest?: (req: Request) => void): Fetcher {
   return {
-    BACKEND_URL: "https://backend.example",
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(input, init);
+      onRequest?.(request);
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    },
+  } as Fetcher;
+}
+
+function baseEnv(backendMock?: Fetcher): Env {
+  return {
+    BACKEND: backendMock ?? createMockBackend(),
     PAGES_TO_GATEWAY_TOKEN: "internal-token",
     GATEWAY_TO_BACKEND_TOKEN: "gateway-token",
     AUTH0_ISSUER: "https://auth.example/",
@@ -59,9 +72,12 @@ test("missing jwt returns 401", async () => {
 });
 
 test("actor headers are overwritten and gateway token is added", async () => {
-  const env = baseEnv();
-  const { token, jwk } = await createJwt(env);
   let backendRequest: Request | null = null;
+  const backendMock = createMockBackend((req) => {
+    backendRequest = req;
+  });
+  const env = baseEnv(backendMock);
+  const { token, jwk } = await createJwt(env);
 
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const request = input instanceof Request ? input : new Request(input, init);
@@ -71,11 +87,7 @@ test("actor headers are overwritten and gateway token is added", async () => {
         headers: { "content-type": "application/json" },
       });
     }
-    backendRequest = request;
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+    return new Response("Not Found", { status: 404 });
   };
 
   const request = new Request("https://gateway.example/api/v1/echo?x=1", {
@@ -93,7 +105,7 @@ test("actor headers are overwritten and gateway token is added", async () => {
   assert.equal(response.status, 200);
   assert.ok(backendRequest, "expected backend request");
   const ensuredRequest = backendRequest as Request;
-  assert.equal(ensuredRequest.url, "https://backend.example/rpc/echo?x=1");
+  assert.equal(ensuredRequest.url, "https://backend.internal/rpc/echo?x=1");
   assert.equal(ensuredRequest.headers.get("x-actor-sub"), "user-123");
   assert.equal(
     ensuredRequest.headers.get("x-actor-scopes"),

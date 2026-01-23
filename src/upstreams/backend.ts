@@ -9,7 +9,7 @@ export async function proxyToBackend(params: {
   requestId: string;
 }): Promise<Response> {
   const { request, env, upstreamPath, actor, requestId } = params;
-  const targetUrl = new URL(upstreamPath, env.BACKEND_URL);
+  const targetUrl = new URL(upstreamPath, "https://backend.internal");
   const headers = new Headers(request.headers);
 
   sanitizeActorHeaders(headers);
@@ -37,7 +37,7 @@ export async function proxyToBackend(params: {
 
   const upstreamRequest = new Request(targetUrl.toString(), init);
 
-  const response = await fetch(upstreamRequest);
+  const response = await env.BACKEND.fetch(upstreamRequest);
   const responseHeaders = new Headers(response.headers);
   responseHeaders.set("x-request-id", requestId);
 

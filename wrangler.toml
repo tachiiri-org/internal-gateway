@@ -9,7 +9,6 @@ service = "ddd-master-editor-backend"
 
 # Production environment
 [vars]
-BACKEND_URL = "https://ddd-master-editor-backend.tachiiri.workers.dev"
 PAGES_TO_GATEWAY_TOKEN = "733145d9f79b04fa30bf271724e6a71478df139d6c122ab820aeaac6095b5f7d"
 GATEWAY_TO_BACKEND_TOKEN = "805851c48aaea12f17b8bcb053de8a33db54171a3aaaa9bfab6a6727362de53a"
 # Auth0/Cloudflare Access JWT検証
@@ -25,7 +24,6 @@ binding = "BACKEND"
 service = "ddd-master-editor-backend"
 
 [env.preview.vars]
-BACKEND_URL = "https://ddd-master-editor-backend-preview.tachiiri.workers.dev"
 PAGES_TO_GATEWAY_TOKEN = "733145d9f79b04fa30bf271724e6a71478df139d6c122ab820aeaac6095b5f7d"
 GATEWAY_TO_BACKEND_TOKEN = "805851c48aaea12f17b8bcb053de8a33db54171a3aaaa9bfab6a6727362de53a"
 ACCESS_JWT_ISSUER = "https://tachiiri.cloudflareaccess.com"
