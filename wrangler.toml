@@ -1,7 +1,7 @@
 name = "tachiiri-gateway"
 main = "src/index.ts"
 compatibility_date = "2026-01-08"
-workers_dev = false
+# workers_dev = false は Dashboard で設定（API権限エラー回避）
 
 [[services]]
 binding = "BACKEND"
@@ -17,7 +17,7 @@ AUTH0_AUDIENCE = "audience-for-production"
 
 # Preview environment
 [env.preview]
-workers_dev = false
+# workers_dev = false は Dashboard で設定
 
 [[env.preview.services]]
 binding = "BACKEND"
