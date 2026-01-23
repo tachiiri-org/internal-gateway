@@ -57,7 +57,9 @@ test("missing internal token returns 403", async () => {
 
   const response = await gateway.fetch(request, env);
   assert.equal(response.status, 403);
-  const body = await response.json();
+  const body = (await response.json()) as {
+    error: { code: string; message: string; requestId: string };
+  };
   assert.equal(body.error.code, "forbidden");
   assert.equal(body.error.message, "Invalid internal token");
   assert.ok(body.error.requestId);
@@ -74,7 +76,9 @@ test("missing jwt returns 401", async () => {
 
   const response = await gateway.fetch(request, env);
   assert.equal(response.status, 401);
-  const body = await response.json();
+  const body = (await response.json()) as {
+    error: { code: string; message: string; requestId: string };
+  };
   assert.equal(body.error.code, "unauthorized");
   assert.equal(body.error.message, "Missing bearer token");
   assert.ok(body.error.requestId);
@@ -133,7 +137,7 @@ test("health endpoint does not require jwt", async () => {
 
   const response = await gateway.fetch(request, env);
   assert.equal(response.status, 200);
-  const body = await response.json();
+  const body = (await response.json()) as { status: string };
   assert.equal(body.status, "ok");
 });
 
@@ -197,7 +201,9 @@ test("upstream 500 is converted into gateway error", async () => {
 
   const response = await gateway.fetch(request, env);
   assert.equal(response.status, 500);
-  const body = await response.json();
+  const body = (await response.json()) as {
+    error: { code: string; message: string; requestId: string };
+  };
   assert.equal(body.error.code, "upstream_error");
   assert.equal(body.error.message, "Upstream request failed");
   assert.ok(body.error.requestId);

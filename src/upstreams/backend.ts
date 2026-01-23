@@ -20,7 +20,7 @@ export async function proxyToBackend(params: {
   headers.delete("x-internal-token");
 
   if (actor) {
-    const actorHeaders = actorToHeaders(actor);
+    const actorHeaders = new Headers(actorToHeaders(actor));
     actorHeaders.forEach((value, key) => {
       headers.set(key, value);
     });
