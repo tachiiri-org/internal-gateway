@@ -13,7 +13,7 @@ export async function proxyToBackend(params: {
   const headers = new Headers(request.headers);
 
   sanitizeActorHeaders(headers);
-  headers.delete("authorization");
+  // authorization はバックエンドで必要（Google Drive等のサービス認証用）
   headers.delete("x-internal-token");
 
   headers.set("x-actor-sub", actor.sub);
