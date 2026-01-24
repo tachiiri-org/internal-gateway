@@ -6,6 +6,8 @@ import { verifyJwt } from "../../policies/auth/verifyJwt";
 import { assertInternalToken } from "../../policies/internal/requireInternalToken";
 import { rateLimitKey } from "../../policies/rateLimit/key";
 import { enforceRateLimit } from "../../policies/rateLimit/limiter";
+import { proxyToR2 } from "../../upstreams/r2";
+import { proxyToGithub } from "../../upstreams/github";
 import { proxyToGoogleDrive } from "../../upstreams/googleDrive";
 
 export const routes: RouteDef[] = [
