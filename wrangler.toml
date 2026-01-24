@@ -3,9 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2026-01-08"
 workers_dev = false
 
-[[services]]
-binding = "BACKEND"
-service = "ddd-master-editor-backend"
+
 
 [[services]]
 binding = "R2_SERVICE"
@@ -31,9 +29,7 @@ AUTH0_AUDIENCE = "urn:ddd-master-editor-api"
 [env.preview]
 workers_dev = false
 
-[[env.preview.services]]
-binding = "BACKEND"
-service = "ddd-master-editor-backend"
+
 
 [[env.preview.services]]
 binding = "R2_SERVICE"

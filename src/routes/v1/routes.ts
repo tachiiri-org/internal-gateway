@@ -6,9 +6,6 @@ import { verifyJwt } from "../../policies/auth/verifyJwt";
 import { assertInternalToken } from "../../policies/internal/requireInternalToken";
 import { rateLimitKey } from "../../policies/rateLimit/key";
 import { enforceRateLimit } from "../../policies/rateLimit/limiter";
-import { proxyToBackend } from "../../upstreams/backend";
-import { proxyToR2 } from "../../upstreams/r2";
-import { proxyToGithub } from "../../upstreams/github";
 import { proxyToGoogleDrive } from "../../upstreams/googleDrive";
 
 export const routes: RouteDef[] = [
@@ -116,7 +113,11 @@ export async function handleV1Request(params: {
     return proxyToGoogleDrive(proxyParams);
   }
 
-  return proxyToBackend(proxyParams);
+  throw new GatewayError({
+    status: 404,
+    code: "rpc_method_not_found",
+    message: `RPC method '${rpcMethod}' not supported`,
+  });
 }
 
 export function matchV1Route(

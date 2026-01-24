@@ -43,9 +43,8 @@ function createMockBackend(onRequest?: (req: Request) => void): Fetcher {
   } as Fetcher;
 }
 
-function baseEnv(backendMock?: Fetcher): Env {
+function baseEnv(): Env {
   return {
-    BACKEND: backendMock ?? createMockBackend(),
     R2_SERVICE: createMockBackend(),
     GITHUB_SERVICE: createMockBackend(),
     GOOGLE_DRIVE_SERVICE: createMockBackend(),
@@ -92,56 +91,6 @@ test("missing jwt returns 401", async () => {
   assert.ok(body.error.requestId);
 });
 
-test("actor headers are overwritten and gateway token is added", async () => {
-  let backendRequest: Request | null = null;
-  const backendMock = createMockBackend((req) => {
-    backendRequest = req;
-  });
-  const env = baseEnv(backendMock);
-  const { token, jwk } = await createJwt(env);
-
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-      const request = input instanceof Request ? input : new Request(input, init);
-      if (request.url === env.AUTH0_JWKS_URL) {
-        return new Response(JSON.stringify({ keys: [jwk] }), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        });
-      }
-      return new Response("Not Found", { status: 404 });
-    };
-
-    const request = new Request("https://gateway.example/api/v1/echo?x=1", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${token}`,
-        "x-internal-token": env.PAGES_TO_GATEWAY_TOKEN,
-        "x-actor-sub": "spoofed",
-        "x-actor-scopes": "spoofed",
-      },
-      body: "hello",
-    });
-
-    const response = await gateway.fetch(request, env);
-    assert.equal(response.status, 200);
-    assert.ok(backendRequest, "expected backend request");
-    const ensuredRequest = backendRequest as Request;
-    assert.equal(ensuredRequest.url, "https://backend.internal/rpc/echo?x=1");
-    assert.equal(ensuredRequest.headers.get("x-actor-kind"), "user");
-    assert.equal(ensuredRequest.headers.get("x-actor-sub"), "user-123");
-    assert.equal(
-      ensuredRequest.headers.get("x-actor-scopes"),
-      "read:items write:items",
-    );
-    assert.equal(ensuredRequest.headers.get("x-actor-tenant"), "acme");
-    assert.equal(ensuredRequest.headers.get("x-gateway-token"), env.GATEWAY_TO_BACKEND_TOKEN);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
 test("health endpoint does not require jwt", async () => {
   const env = baseEnv();
   const request = new Request("https://gateway.example/health", {
@@ -183,14 +132,8 @@ test("actor generation handles empty scopes", () => {
   assert.deepEqual(actor.raw, { iss: "https://issuer.example", aud: undefined });
 });
 
-test("upstream 500 is converted into gateway error", async () => {
-  const backendMock = createMockBackend(() => {});
-  backendMock.fetch = async () =>
-    new Response(JSON.stringify({ detail: "kaboom" }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
-  const env = baseEnv(backendMock);
+test("unsupported RPC method returns 404", async () => {
+  const env = baseEnv();
   const { token, jwk } = await createJwt(env);
 
   const originalFetch = globalThis.fetch;
@@ -206,7 +149,7 @@ test("upstream 500 is converted into gateway error", async () => {
       return new Response("Not Found", { status: 404 });
     };
 
-    const request = new Request("https://gateway.example/api/v1/echo", {
+    const request = new Request("https://gateway.example/api/v1/unsupported_method", {
       method: "GET",
       headers: {
         authorization: `Bearer ${token}`,
@@ -215,14 +158,15 @@ test("upstream 500 is converted into gateway error", async () => {
     });
 
     const response = await gateway.fetch(request, env);
-    assert.equal(response.status, 500);
+    assert.equal(response.status, 404);
     const body = (await response.json()) as {
       error: { code: string; message: string; requestId: string };
     };
-    assert.equal(body.error.code, "upstream_error");
-    assert.equal(body.error.message, "Upstream request failed");
+    assert.equal(body.error.code, "rpc_method_not_found");
     assert.ok(body.error.requestId);
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
+
+
