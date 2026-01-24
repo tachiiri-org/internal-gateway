@@ -7,6 +7,9 @@ import { assertInternalToken } from "../../policies/internal/requireInternalToke
 import { rateLimitKey } from "../../policies/rateLimit/key";
 import { enforceRateLimit } from "../../policies/rateLimit/limiter";
 import { proxyToBackend } from "../../upstreams/backend";
+import { proxyToR2 } from "../../upstreams/r2";
+import { proxyToGithub } from "../../upstreams/github";
+import { proxyToGoogleDrive } from "../../upstreams/googleDrive";
 
 export const routes: RouteDef[] = [
   {
@@ -91,14 +94,29 @@ export async function handleV1Request(params: {
   const key = rateLimitKey(actor, request);
   enforceRateLimit(key, match.route.class);
 
-  return proxyToBackend({
+  const rpcMethod = match.upstreamPath.substring("/rpc/".length).split("?")[0];
+  const upstreamPathWithQuery = match.upstreamPath + url.search;
+
+  const proxyParams = {
     request,
     env,
-    upstreamPath: match.upstreamPath + url.search,
+    upstreamPath: upstreamPathWithQuery,
     actor,
     requestId,
     routeDef: match.route,
-  });
+  };
+
+  if (rpcMethod.startsWith("cloudflare_r2_")) {
+    return proxyToR2(proxyParams);
+  }
+  if (rpcMethod.startsWith("github_")) {
+    return proxyToGithub(proxyParams);
+  }
+  if (rpcMethod.startsWith("google_drive_")) {
+    return proxyToGoogleDrive(proxyParams);
+  }
+
+  return proxyToBackend(proxyParams);
 }
 
 export function matchV1Route(

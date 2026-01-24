@@ -4,6 +4,10 @@ import { GatewayError } from "../../errors/gatewayError";
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
+export function clearJwksCache() {
+  jwksCache.clear();
+}
+
 function getJwks(url: string) {
   const existing = jwksCache.get(url);
   if (existing) return existing;

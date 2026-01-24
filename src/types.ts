@@ -26,6 +26,9 @@ export interface Actor {
 
 export interface Env {
   BACKEND: Fetcher;
+  R2_SERVICE: Fetcher;
+  GITHUB_SERVICE: Fetcher;
+  GOOGLE_DRIVE_SERVICE: Fetcher;
   PAGES_TO_GATEWAY_TOKEN: string;
   GATEWAY_TO_BACKEND_TOKEN: string;
   AUTH0_ISSUER: string;

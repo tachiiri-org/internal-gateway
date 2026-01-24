@@ -1,11 +1,16 @@
-import { test } from "node:test";
+import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { SignJWT, exportJWK, generateKeyPair } from "jose";
 import gateway from "../src/index";
 import type { Actor, Env, JwtClaims } from "../src/types";
 import { actorFromJwt, actorToHeaders, headersToActor } from "../src/policies/auth/actor";
+import { clearJwksCache } from "../src/policies/auth/verifyJwt";
 
 type Jwk = Awaited<ReturnType<typeof exportJWK>>;
+
+afterEach(() => {
+  clearJwksCache();
+});
 
 async function createJwt(env: Env) {
   const { privateKey, publicKey } = await generateKeyPair("RS256");
@@ -41,6 +46,9 @@ function createMockBackend(onRequest?: (req: Request) => void): Fetcher {
 function baseEnv(backendMock?: Fetcher): Env {
   return {
     BACKEND: backendMock ?? createMockBackend(),
+    R2_SERVICE: createMockBackend(),
+    GITHUB_SERVICE: createMockBackend(),
+    GOOGLE_DRIVE_SERVICE: createMockBackend(),
     PAGES_TO_GATEWAY_TOKEN: "internal-token",
     GATEWAY_TO_BACKEND_TOKEN: "gateway-token",
     AUTH0_ISSUER: "https://auth.example/",
@@ -92,41 +100,46 @@ test("actor headers are overwritten and gateway token is added", async () => {
   const env = baseEnv(backendMock);
   const { token, jwk } = await createJwt(env);
 
-  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const request = input instanceof Request ? input : new Request(input, init);
-    if (request.url === env.AUTH0_JWKS_URL) {
-      return new Response(JSON.stringify({ keys: [jwk] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-    return new Response("Not Found", { status: 404 });
-  };
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(input, init);
+      if (request.url === env.AUTH0_JWKS_URL) {
+        return new Response(JSON.stringify({ keys: [jwk] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response("Not Found", { status: 404 });
+    };
 
-  const request = new Request("https://gateway.example/api/v1/echo?x=1", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "x-internal-token": env.PAGES_TO_GATEWAY_TOKEN,
-      "x-actor-sub": "spoofed",
-      "x-actor-scopes": "spoofed",
-    },
-    body: "hello",
-  });
+    const request = new Request("https://gateway.example/api/v1/echo?x=1", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-internal-token": env.PAGES_TO_GATEWAY_TOKEN,
+        "x-actor-sub": "spoofed",
+        "x-actor-scopes": "spoofed",
+      },
+      body: "hello",
+    });
 
-  const response = await gateway.fetch(request, env);
-  assert.equal(response.status, 200);
-  assert.ok(backendRequest, "expected backend request");
-  const ensuredRequest = backendRequest as Request;
-  assert.equal(ensuredRequest.url, "https://backend.internal/rpc/echo?x=1");
-  assert.equal(ensuredRequest.headers.get("x-actor-kind"), "user");
-  assert.equal(ensuredRequest.headers.get("x-actor-sub"), "user-123");
-  assert.equal(
-    ensuredRequest.headers.get("x-actor-scopes"),
-    "read:items write:items",
-  );
-  assert.equal(ensuredRequest.headers.get("x-actor-tenant"), "acme");
-  assert.equal(ensuredRequest.headers.get("x-gateway-token"), env.GATEWAY_TO_BACKEND_TOKEN);
+    const response = await gateway.fetch(request, env);
+    assert.equal(response.status, 200);
+    assert.ok(backendRequest, "expected backend request");
+    const ensuredRequest = backendRequest as Request;
+    assert.equal(ensuredRequest.url, "https://backend.internal/rpc/echo?x=1");
+    assert.equal(ensuredRequest.headers.get("x-actor-kind"), "user");
+    assert.equal(ensuredRequest.headers.get("x-actor-sub"), "user-123");
+    assert.equal(
+      ensuredRequest.headers.get("x-actor-scopes"),
+      "read:items write:items",
+    );
+    assert.equal(ensuredRequest.headers.get("x-actor-tenant"), "acme");
+    assert.equal(ensuredRequest.headers.get("x-gateway-token"), env.GATEWAY_TO_BACKEND_TOKEN);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("health endpoint does not require jwt", async () => {
@@ -180,31 +193,36 @@ test("upstream 500 is converted into gateway error", async () => {
   const env = baseEnv(backendMock);
   const { token, jwk } = await createJwt(env);
 
-  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const request = input instanceof Request ? input : new Request(input, init);
-    if (request.url === env.AUTH0_JWKS_URL) {
-      return new Response(JSON.stringify({ keys: [jwk] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-    return new Response("Not Found", { status: 404 });
-  };
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(input, init);
+      if (request.url === env.AUTH0_JWKS_URL) {
+        return new Response(JSON.stringify({ keys: [jwk] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response("Not Found", { status: 404 });
+    };
 
-  const request = new Request("https://gateway.example/api/v1/echo", {
-    method: "GET",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "x-internal-token": env.PAGES_TO_GATEWAY_TOKEN,
-    },
-  });
+    const request = new Request("https://gateway.example/api/v1/echo", {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-internal-token": env.PAGES_TO_GATEWAY_TOKEN,
+      },
+    });
 
-  const response = await gateway.fetch(request, env);
-  assert.equal(response.status, 500);
-  const body = (await response.json()) as {
-    error: { code: string; message: string; requestId: string };
-  };
-  assert.equal(body.error.code, "upstream_error");
-  assert.equal(body.error.message, "Upstream request failed");
-  assert.ok(body.error.requestId);
+    const response = await gateway.fetch(request, env);
+    assert.equal(response.status, 500);
+    const body = (await response.json()) as {
+      error: { code: string; message: string; requestId: string };
+    };
+    assert.equal(body.error.code, "upstream_error");
+    assert.equal(body.error.message, "Upstream request failed");
+    assert.ok(body.error.requestId);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

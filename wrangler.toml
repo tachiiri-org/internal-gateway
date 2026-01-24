@@ -7,6 +7,18 @@ workers_dev = false
 binding = "BACKEND"
 service = "ddd-master-editor-backend"
 
+[[services]]
+binding = "R2_SERVICE"
+service = "cloudflare-r2-service"
+
+[[services]]
+binding = "GITHUB_SERVICE"
+service = "github-service"
+
+[[services]]
+binding = "GOOGLE_DRIVE_SERVICE"
+service = "google-drive-service"
+
 # Production environment
 [vars]
 PAGES_TO_GATEWAY_TOKEN = "733145d9f79b04fa30bf271724e6a71478df139d6c122ab820aeaac6095b5f7d"
@@ -22,6 +34,18 @@ workers_dev = false
 [[env.preview.services]]
 binding = "BACKEND"
 service = "ddd-master-editor-backend"
+
+[[env.preview.services]]
+binding = "R2_SERVICE"
+service = "cloudflare-r2-service"
+
+[[env.preview.services]]
+binding = "GITHUB_SERVICE"
+service = "github-service"
+
+[[env.preview.services]]
+binding = "GOOGLE_DRIVE_SERVICE"
+service = "google-drive-service"
 
 [env.preview.vars]
 PAGES_TO_GATEWAY_TOKEN = "733145d9f79b04fa30bf271724e6a71478df139d6c122ab820aeaac6095b5f7d"
