@@ -1,5 +1,5 @@
 {
-  "name": "tachiiri-gateway",
+  "name": "internal-gateway",
   "version": "1.0.0",
   "description": "Cloudflare Worker gateway for tachiiri services",
   "private": true,
