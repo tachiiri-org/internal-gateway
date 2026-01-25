@@ -12,6 +12,14 @@ import { proxyToGoogleDrive } from "../../upstreams/googleDrive";
 
 export const routes: RouteDef[] = [
   {
+    id: "google-drive-drives-create",
+    method: "POST",
+    path: "/api/v1/google_drive_drives_create",
+    upstreamPath: "/rpc/google_drive_drives_create",
+    auth: "required",
+    class: "write",
+  },
+  {
     id: "rpc-read",
     method: "GET",
     path: "/api/v1",

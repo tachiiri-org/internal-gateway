@@ -56,6 +56,14 @@ export async function proxyToGoogleDrive(params: {
 
   if (!response.ok) {
     const upstreamBody = await readUpstreamBody(response);
+    if (response.status === 401) {
+      throw new GatewayError({
+        status: 401,
+        code: "unauthorized",
+        message: "Upstream unauthorized",
+        details: upstreamBody,
+      });
+    }
     throw new GatewayError({
       status: response.status,
       code: "upstream_error",
