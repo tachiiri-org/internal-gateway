@@ -105,7 +105,7 @@ export async function handleV1Request(params: {
     routeDef: match.route,
   };
 
-  if (rpcMethod.startsWith("cloudflare_r2_")) {
+  if (rpcMethod.startsWith("r2_")) {
     return proxyToR2(proxyParams);
   }
   if (rpcMethod.startsWith("github_")) {
