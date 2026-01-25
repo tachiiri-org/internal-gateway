@@ -25,11 +25,9 @@ export class GatewayError extends Error {
 }
 
 interface ErrorBody {
-  error: {
-    code: string;
-    message: string;
-    requestId: string;
-  };
+  error_code: string;
+  message: string;
+  request_id: string;
 }
 
 export function isGatewayError(error: unknown): error is GatewayError {
@@ -63,11 +61,9 @@ export function toGatewayError(error: unknown, requestId: string): GatewayError 
 export function errorResponse(error: unknown, requestId: string): Response {
   const gatewayError = toGatewayError(error, requestId);
   const body: ErrorBody = {
-    error: {
-      code: gatewayError.code,
-      message: gatewayError.message,
-      requestId: gatewayError.requestId ?? requestId,
-    },
+    error_code: gatewayError.code,
+    message: gatewayError.message,
+    request_id: gatewayError.requestId ?? requestId,
   };
   return jsonResponse(body, gatewayError.status, gatewayError.requestId ?? requestId);
 }
