@@ -60,7 +60,7 @@ export async function proxyToGithub(params: {
       status: response.status,
       code: "upstream_error",
       message: "Upstream request failed",
-      cause: upstreamBody,
+      details: upstreamBody,
     });
   }
 

@@ -28,6 +28,7 @@ interface ErrorBody {
   error_code: string;
   message: string;
   request_id: string;
+  details?: unknown;
 }
 
 export function isGatewayError(error: unknown): error is GatewayError {
@@ -64,6 +65,7 @@ export function errorResponse(error: unknown, requestId: string): Response {
     error_code: gatewayError.code,
     message: gatewayError.message,
     request_id: gatewayError.requestId ?? requestId,
+    details: gatewayError.details,
   };
   return jsonResponse(body, gatewayError.status, gatewayError.requestId ?? requestId);
 }
