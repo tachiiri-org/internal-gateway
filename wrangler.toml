@@ -1,0 +1,48 @@
+name = "internal-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-01-08"
+workers_dev = false
+
+
+
+[[services]]
+binding = "R2_SERVICE"
+service = "cloudflare-r2-service"
+
+[[services]]
+binding = "GITHUB_SERVICE"
+service = "github-service"
+
+[[services]]
+binding = "GOOGLE_DRIVE_SERVICE"
+service = "google-drive-service"
+
+# Production environment
+# PAGES_TO_GATEWAY_TOKEN and GATEWAY_TO_BACKEND_TOKEN are managed as Wrangler Secrets
+[vars]
+# Auth0 JWT検証
+AUTH0_ISSUER = "https://tachiiri.jp.auth0.com/"
+AUTH0_AUDIENCE = "urn:ddd-master-editor-api"
+
+# Preview environment
+[env.preview]
+workers_dev = false
+
+
+
+[[env.preview.services]]
+binding = "R2_SERVICE"
+service = "cloudflare-r2-service"
+
+[[env.preview.services]]
+binding = "GITHUB_SERVICE"
+service = "github-service"
+
+[[env.preview.services]]
+binding = "GOOGLE_DRIVE_SERVICE"
+service = "google-drive-service"
+
+# PAGES_TO_GATEWAY_TOKEN and GATEWAY_TO_BACKEND_TOKEN are managed as Wrangler Secrets
+[env.preview.vars]
+AUTH0_ISSUER = "https://tachiiri.jp.auth0.com/"
+AUTH0_AUDIENCE = "urn:ddd-master-editor-api"

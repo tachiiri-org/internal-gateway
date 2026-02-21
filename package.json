@@ -1,0 +1,38 @@
+{
+  "name": "internal-gateway",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker gateway for tachiiri services",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --import tsx",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --max-warnings 0 --fix",
+    "prepare": "husky install",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20251219.0",
+    "@eslint/js": "^9.0.0",
+    "@tachiiri-library/specifications": "^0.1.11",
+    "@types/node": "^22.18.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^9.0.11",
+    "jiti": "^2.4.2",
+    "tsx": "^4.20.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.50.1",
+    "wrangler": "4.54.0"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
+  }
+}
