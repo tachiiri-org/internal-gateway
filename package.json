@@ -16,7 +16,8 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
     "prepare": "husky install",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "generate:r2-types": "openapi-typescript https://raw.githubusercontent.com/tachiiri-org/cloudflare-r2-service/main/openapi.json -o src/types/r2-api.d.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20251219.0",
@@ -27,12 +28,14 @@
     "eslint-config-prettier": "^9.0.0",
     "husky": "^9.0.11",
     "jiti": "^2.4.2",
+    "openapi-typescript": "^7.13.0",
     "tsx": "^4.20.5",
     "typescript": "5.9.3",
     "typescript-eslint": "8.50.1",
     "wrangler": "4.54.0"
   },
   "dependencies": {
-    "jose": "^6.1.0"
+    "jose": "^6.1.0",
+    "openapi-fetch": "^0.17.0"
   }
 }

@@ -1,0 +1,32 @@
+name: Update R2 API Types
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run generate:r2-types
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/types/r2-api.d.ts
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: update r2 api types"
+            git push
+          fi
+        shell: bash
