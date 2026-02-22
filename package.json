@@ -16,7 +16,8 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
     "prepare": "husky install",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "generate:openapi": "node scripts/generate-openapi.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20251219.0",

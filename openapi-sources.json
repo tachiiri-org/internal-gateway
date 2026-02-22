@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "service": "r2",
+      "url": "https://raw.githubusercontent.com/tachiiri-org/cloudflare-r2-service/main/openapi.json"
+    }
+  ]
+}
