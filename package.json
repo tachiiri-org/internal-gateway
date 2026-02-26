@@ -2,11 +2,13 @@
   "name": "internal-gateway",
   "version": "1.0.0",
   "description": "Cloudflare Worker gateway for tachiiri services",
-  "private": true,
   "type": "module",
   "packageManager": "npm@10.9.2",
   "engines": {
     "node": "22.x"
+  },
+  "exports": {
+    "./openapi.json": "./openapi.json"
   },
   "scripts": {
     "dev": "wrangler dev",
