@@ -1,2 +1,6 @@
 .claude/settings.local.json
 issues/
+node_modules/
+.wrangler/
+.serena/
+.mcp.json
