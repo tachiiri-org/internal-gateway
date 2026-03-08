@@ -65,7 +65,7 @@ export const r2 = createClient<paths>({
 
 ```ts
 // ファイル取得（メタデータ + コンテンツ）
-const { data, error } = await r2.POST('/rpc/r2_file_get', {
+const { data, error } = await r2.POST('/r2_file_get', {
   body: { bucket_id: 'my-bucket', key: 'path/to/file.txt' },
 });
 if (error) throw new Error(error.message);
@@ -73,7 +73,7 @@ if (error) throw new Error(error.message);
 const content = atob(data.content_base64);  // base64 デコード
 
 // ファイル保存（ETag による楽観的ロック）
-await r2.POST('/rpc/r2_file_save', {
+await r2.POST('/r2_file_save', {
   body: {
     bucket_id: 'my-bucket',
     key: 'path/to/file.txt',
@@ -83,12 +83,12 @@ await r2.POST('/rpc/r2_file_save', {
 });
 
 // バケット一覧
-const { data: buckets } = await r2.POST('/rpc/r2_bucket_list', {
+const { data: buckets } = await r2.POST('/r2_bucket_list', {
   body: {},
 });
 
 // 署名付きURL（ダウンロードリンク生成）
-const { data: ref } = await r2.POST('/rpc/r2_reference_resolve', {
+const { data: ref } = await r2.POST('/r2_reference_resolve', {
   body: { bucket_id: 'my-bucket', key: 'path/to/file.txt', expires_in: 3600 },
 });
 const downloadUrl = ref.url;

@@ -24,18 +24,22 @@
   "devDependencies": {
     "@cloudflare/workers-types": "4.20251219.0",
     "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.58.2",
     "@tachiiri-library/specifications": "^0.1.11",
     "@types/node": "^22.18.0",
-    "eslint": "^9.0.0",
+    "eslint": "^10.0.2",
     "eslint-config-prettier": "^9.0.0",
     "husky": "^9.0.11",
     "jiti": "^2.4.2",
+    "prettier": "^3.8.1",
     "tsx": "^4.20.5",
-    "typescript": "5.9.3",
+    "typescript": "^5.9.3",
     "typescript-eslint": "8.50.1",
+    "vitest": "^4.0.18",
     "wrangler": "4.54.0"
   },
   "dependencies": {
+    "cloude-ops": "github:tachiiri-org/cloude-ops",
     "jose": "^6.1.0"
   }
 }

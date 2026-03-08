@@ -94,7 +94,7 @@ export function makeR2Client(params: {
 各 RPC ハンドラでは以下のパターンを使う：
 
 ```typescript
-const { data, error, response } = await r2.POST('/rpc/r2_xxx', { body });
+const { data, error, response } = await r2.POST('/r2_xxx', { body });
 if (error || !response.ok) {
   throw new GatewayError({
     status: response.status,
@@ -120,7 +120,7 @@ return new Response(JSON.stringify(data), {
 ### やること
 
 1. `routes` 配列に R2 の各 RPC メソッドを **明示的に** 追加する
-   - ステップ 2 で生成した型から、存在するすべての `/rpc/r2_*` パスを確認して列挙する
+   - ステップ 2 で生成した型から、存在するすべての `/r2_*` パスを確認して列挙する
    - 各ルートの `class` は操作の性質に応じて `"read"` または `"write"` を設定する
 
 2. `handleV1Request` の R2 ディスパッチ部分（`rpcMethod.startsWith("r2_")` のブロック）を
@@ -133,7 +133,7 @@ return new Response(JSON.stringify(data), {
   id: "r2-file-get",
   method: "POST",
   path: "/api/v1/r2_file_get",
-  upstreamPath: "/rpc/r2_file_get",
+  upstreamPath: "/r2_file_get",
   auth: "required",
   class: "read",
 },
@@ -141,7 +141,7 @@ return new Response(JSON.stringify(data), {
   id: "r2-file-save",
   method: "POST",
   path: "/api/v1/r2_file_save",
-  upstreamPath: "/rpc/r2_file_save",
+  upstreamPath: "/r2_file_save",
   auth: "required",
   class: "write",
 },
