@@ -15,13 +15,13 @@ npm run dev       # Start local dev server
 npm run typecheck # Type check
 npm run lint      # Lint
 npm run test      # Run tests
-npm run deploy    # Deploy to Cloudflare
+npm run deploy:dev # Deploy to preview (development)
 ```
 
 ## 本番環境チェック
 
 `wrangler dev --remote` で本番環境とゲートウェイでつないでテスト可能。
-GithubのmainブランチへのプッシュでCloudflare workersにデプロイされるので、その後これを実施するか、ユーザーに案内すればテストができる。
+本番デプロイは `main` マージ経由で行い、開発環境へのデプロイは `npm run deploy:dev` を利用する。
 
 ## OpenAPI スペックの利用
 

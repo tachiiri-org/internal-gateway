@@ -18,6 +18,7 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
     "prepare": "husky install",
+    "deploy:dev": "wrangler deploy --env preview",
     "deploy": "wrangler deploy",
     "generate:openapi": "node scripts/generate-openapi.mjs"
   },
