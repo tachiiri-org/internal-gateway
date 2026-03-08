@@ -46,3 +46,7 @@ service = "google-drive-service"
 [env.preview.vars]
 AUTH0_ISSUER = "https://tachiiri.jp.auth0.com/"
 AUTH0_AUDIENCE = "urn:ddd-master-editor-api"
+
+# Cloudflare Workers Builds resolves the production target by env name.
+# Keep this section value-less to avoid hardcoding production-only config.
+[env.production]
