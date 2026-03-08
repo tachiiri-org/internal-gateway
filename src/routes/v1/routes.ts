@@ -15,7 +15,7 @@ export const routes: RouteDef[] = [
     id: "google-drive-drives-create",
     method: "POST",
     path: "/api/v1/google_drive_drives_create",
-    upstreamPath: "/rpc/google_drive_drives_create",
+    upstreamPath: "/google_drive_drives_create",
     auth: "required",
     class: "write",
   },
@@ -23,7 +23,7 @@ export const routes: RouteDef[] = [
     id: "rpc-read",
     method: "GET",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "required",
     class: "read",
   },
@@ -31,7 +31,7 @@ export const routes: RouteDef[] = [
     id: "rpc-write-post",
     method: "POST",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "required",
     class: "write",
   },
@@ -39,7 +39,7 @@ export const routes: RouteDef[] = [
     id: "rpc-write-put",
     method: "PUT",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "required",
     class: "write",
   },
@@ -47,7 +47,7 @@ export const routes: RouteDef[] = [
     id: "rpc-write-patch",
     method: "PATCH",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "required",
     class: "write",
   },
@@ -55,7 +55,7 @@ export const routes: RouteDef[] = [
     id: "rpc-write-delete",
     method: "DELETE",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "required",
     class: "write",
   },
@@ -63,7 +63,7 @@ export const routes: RouteDef[] = [
     id: "rpc-options",
     method: "OPTIONS",
     path: "/api/v1",
-    upstreamPath: "/rpc",
+    upstreamPath: "",
     auth: "none",
     class: "read",
   },
@@ -101,7 +101,7 @@ export async function handleV1Request(params: {
   const key = rateLimitKey(actor, request);
   enforceRateLimit(key, match.route.class);
 
-  const rpcMethod = match.upstreamPath.substring("/rpc/".length).split("?")[0];
+  const rpcMethod = match.upstreamPath.replace(/^\/+/, "").split("?")[0];
   const upstreamPathWithQuery = match.upstreamPath + url.search;
 
   const proxyParams = {
